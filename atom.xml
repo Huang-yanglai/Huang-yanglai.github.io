@@ -6,7 +6,7 @@
   <link href="http://huangyanglai-blog.cn/atom.xml" rel="self"/>
   
   <link href="http://huangyanglai-blog.cn/"/>
-  <updated>2021-10-01T08:04:00.059Z</updated>
+  <updated>2021-11-21T13:07:09.621Z</updated>
   <id>http://huangyanglai-blog.cn/</id>
   
   <author>
@@ -15,6 +15,31 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>基于stm32f407单片机与ov2640摄像头与yolov3的上位机制作</title>
+    <link href="http://huangyanglai-blog.cn/2021/11/21/%E5%9F%BA%E4%BA%8Estm32f407%E5%8D%95%E7%89%87%E6%9C%BA%E4%B8%8Eov2640%E6%91%84%E5%83%8F%E5%A4%B4%E4%B8%8Eyolov3%E7%9A%84%E4%B8%8A%E4%BD%8D%E6%9C%BA%E5%88%B6%E4%BD%9C/"/>
+    <id>http://huangyanglai-blog.cn/2021/11/21/%E5%9F%BA%E4%BA%8Estm32f407%E5%8D%95%E7%89%87%E6%9C%BA%E4%B8%8Eov2640%E6%91%84%E5%83%8F%E5%A4%B4%E4%B8%8Eyolov3%E7%9A%84%E4%B8%8A%E4%BD%8D%E6%9C%BA%E5%88%B6%E4%BD%9C/</id>
+    <published>2021-11-21T12:15:58.000Z</published>
+    <updated>2021-11-21T13:07:09.621Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote><p>需要具备知识：</p><p>1，基本单片机应用知识（本上位机默认使用正点原子探索者摄像头例程）<br>2，基本opencv知识<br>3，基本神经网络知识（yolov3）<br>4，基本pyqt串口知识<br>5，以及数据包查找方式</p></blockquote><h1 id="单片机部分代码"><a href="#单片机部分代码" class="headerlink" title="单片机部分代码"></a>单片机部分代码</h1><pre><code>if(jpeg_data_ok==1)    //已经采集完一帧图像了</code></pre><p>{  </p><pre><code>p=(u8*)jpeg_buf;LCD_ShowString(30,210,210,16,16,&quot;Sending JPEG data...&quot;); //提示正在传输数据for(i=0;i&lt;jpeg_data_len*4;i++)        //dma传输1次等于4字节,所以乘以4.&#123;    while(USART_GetFlagStatus(USART1,USART_FLAG_TC)==RESET);    //循环发送,直到发送完毕              USART_SendData(USART1,p[i]);     key=KEY_Scan(0);     if(key)break;&#125;</code></pre><p>}</p><h1 id="opencv-yolov3部分代码"><a href="#opencv-yolov3部分代码" class="headerlink" title="opencv+yolov3部分代码"></a>opencv+yolov3部分代码</h1><pre><code>def data_receive(self):    while(self.mSerial.isOpen()):        try:            num=self.mSerial.inWaiting()            #print(&quot;num是啥&quot;,num)        except:            self.mSerial.close()            self.data=0            self.signalRecieve.emit(self.data)        if num&gt;5000:             if self.mSerial.isOpen():                 self.data=self.mSerial.read(num)#16进制                 # self.data = self.mSerial.read(num).decode(&quot;gbk&quot;) #串口接收数据gbk                 data=self.data                 print(&quot;接受到数据了&quot;)                 need_data=bytes_link(data)                 if(sum(need_data)==0):                     img_decode=last_img_decode                 else:                     img_decode=cv2.imdecode(need_data,cv2.IMREAD_COLOR)                 last_img_decode=img_decode                 print(img_decode.shape)                 #img_decode=cv2.resize(img_decode,(561, 251),interpolation=cv2.INTER_AREA )                 img_decode=cv2.cvtColor(img_decode,cv2.COLOR_BGR2RGB)                 img_decode=self.process_frame(img_decode)                 self.Qframe=QImage(img_decode.data,img_decode.shape[1],img_decode.shape[0],QImage.Format_RGB888)                 md.label_view.setPixmap(QPixmap.fromImage(self.Qframe))                                  #self.textBrowser.insertPlainText(data1)                 #self.textBrowser.moveCursor(self.textBrowser.textCursor().End)        time.sleep(0.001)        md.update()</code></pre><p>#pyqt串口部分<br>          self.mSerial.port=self.comboBox_uart_num.currentText()#获取端口号<br>        self.mSerial.baudrate=self.comboBox_rate.currentText()#获取波特率<br>        self.mSerial.bytesize =8        #数据位<br>        self.mSerial.stopbits = 1      #停止位<br>        self.mSerial.parity = serial.PARITY_NONE  #奇偶校验位  </p><p>#jpeg压缩数据解包<br>    def bytes_link(data):<br>        global last_img_encode<br>        data_tou=bytes([0xFF,0xD8])<br>        data_end=bytes([0xFF,0xD9])<br>        pos=data.find(data_tou)<br>        pos_end=data.find(data_end)<br>        weneed=data[pos:pos_end+2]<br>        nparr=np.fromstring(weneed,np.uint8)</p><p><img src="https://i.loli.net/2021/11/21/ndjar1tl7M8UocL.png"></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h1&gt;&lt;blockquote&gt;&lt;p&gt;需要具备知识：&lt;/p&gt;
+&lt;p&gt;1，基本单片机应用知识（本上位机默认使用正点原子探索者摄像头例程）&lt;br&gt;2，基本op</summary>
+      
+    
+    
+    
+    <category term="上位机制作" scheme="http://huangyanglai-blog.cn/categories/%E4%B8%8A%E4%BD%8D%E6%9C%BA%E5%88%B6%E4%BD%9C/"/>
+    
+    
+    <category term="pyqt上位机制作" scheme="http://huangyanglai-blog.cn/tags/pyqt%E4%B8%8A%E4%BD%8D%E6%9C%BA%E5%88%B6%E4%BD%9C/"/>
+    
+  </entry>
   
   <entry>
     <title>自我介绍</title>
