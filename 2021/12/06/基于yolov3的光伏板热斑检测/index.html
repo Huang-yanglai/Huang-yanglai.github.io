@@ -1,0 +1,338 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>基于yolov3的光伏板热斑检测 | 有理想的黄坚强</title><meta name="keywords" content="深度学习"><meta name="author" content="黄坚强"><meta name="copyright" content="黄坚强"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="简介需要具备知识：1，python知识2，opencv基础知识3，pytorch框架4，基本神经网络知识（yolov3）  #主干代码（建议将5252，2626，13*13网格变小（由于光斑点一般较小））—-借鉴博主Bubbliiing    class BasicBlock(nn.Module):    def init(self, inplanes, planes):        super">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于yolov3的光伏板热斑检测">
+<meta property="og:url" content="http://huangyanglai-blog.cn/2021/12/06/%E5%9F%BA%E4%BA%8Eyolov3%E7%9A%84%E5%85%89%E4%BC%8F%E6%9D%BF%E7%83%AD%E6%96%91%E6%A3%80%E6%B5%8B/index.html">
+<meta property="og:site_name" content="有理想的黄坚强">
+<meta property="og:description" content="简介需要具备知识：1，python知识2，opencv基础知识3，pytorch框架4，基本神经网络知识（yolov3）  #主干代码（建议将5252，2626，13*13网格变小（由于光斑点一般较小））—-借鉴博主Bubbliiing    class BasicBlock(nn.Module):    def init(self, inplanes, planes):        super">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://huangyanglai-blog.cn/img/277.png">
+<meta property="article:published_time" content="2021-12-06T12:37:36.000Z">
+<meta property="article:modified_time" content="2021-12-06T13:29:32.011Z">
+<meta property="article:author" content="黄坚强">
+<meta property="article:tag" content="深度学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://huangyanglai-blog.cn/img/277.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://huangyanglai-blog.cn/2021/12/06/%E5%9F%BA%E4%BA%8Eyolov3%E7%9A%84%E5%85%89%E4%BC%8F%E6%9D%BF%E7%83%AD%E6%96%91%E6%A3%80%E6%B5%8B/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '基于yolov3的光伏板热斑检测',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-12-06 21:29:32'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="有理想的黄坚强" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/huang.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/aboutme/"><i class="fa-fw fas fa-user-secret"></i><span> 关于我</span></a></div><div class="menus_item"><a class="site-page" href="/box/"><i class="fa-fw fas fa-search-plus"></i><span> 导航</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/277.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">有理想的黄坚强</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/aboutme/"><i class="fa-fw fas fa-user-secret"></i><span> 关于我</span></a></div><div class="menus_item"><a class="site-page" href="/box/"><i class="fa-fw fas fa-search-plus"></i><span> 导航</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">基于yolov3的光伏板热斑检测</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-12-06T12:37:36.000Z" title="发表于 2021-12-06 20:37:36">2021-12-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-12-06T13:29:32.011Z" title="更新于 2021-12-06 21:29:32">2021-12-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%9B%BE%E5%83%8F%E6%A3%80%E6%B5%8B/">图像检测</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="基于yolov3的光伏板热斑检测"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote><p>需要具备知识：<br>1，python知识<br>2，opencv基础知识<br>3，pytorch框架<br>4，基本神经网络知识（yolov3）</p>
+</blockquote>
+<p>#主干代码（建议将52<em>52，26</em>26，13*13网格变小（由于光斑点一般较小））—-借鉴博主Bubbliiing<br>    class BasicBlock(nn.Module):<br>    def <strong>init</strong>(self, inplanes, planes):<br>        super(BasicBlock, self).<strong>init</strong>()<br>        self.conv1  = nn.Conv2d(inplanes, planes[0], kernel_size=1, stride=1, padding=0, bias=False)<br>        self.bn1    = nn.BatchNorm2d(planes[0])<br>        self.relu1  = nn.LeakyReLU(0.1)</p>
+<pre><code>    self.conv2  = nn.Conv2d(planes[0], planes[1], kernel_size=3, stride=1, padding=1, bias=False)
+    self.bn2    = nn.BatchNorm2d(planes[1])
+    self.relu2  = nn.LeakyReLU(0.1)
+
+def forward(self, x):
+    residual = x
+    #print(&quot;输入&quot;,residual.size())
+    out = self.conv1(x)
+    out = self.bn1(out)
+    out = self.relu1(out)
+    #print(&quot;第一步&quot;,out.size())
+    out = self.conv2(out)
+    out = self.bn2(out)
+    out = self.relu2(out)
+    #print(&quot;第二步&quot;,out.size())
+
+    out += residual
+    #print(&quot;第三步&quot;,out.size())
+    return out
+</code></pre>
+<p>class DarkNet(nn.Module):<br>    def <strong>init</strong>(self, layers):<br>        super(DarkNet, self).<strong>init</strong>()<br>        self.inplanes = 32<br>        # 416,416,3 -&gt; 416,416,32<br>        self.conv1  = nn.Conv2d(3, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False)<br>        self.bn1    = nn.BatchNorm2d(self.inplanes)<br>        self.relu1  = nn.LeakyReLU(0.1)</p>
+<pre><code>    # 416,416,32 -&gt; 208,208,64
+    self.layer1 = self._make_layer([32, 64], layers[0])#1
+
+    # 208,208,64 -&gt; 104,104,128
+    self.layer2 = self._make_layer([64, 128], layers[1])#2
+
+    # 104,104,128 -&gt; 52,52,256
+    self.layer3 = self._make_layer([128, 256], layers[2])#8
+
+    # 52,52,256 -&gt; 26,26,512
+    self.layer4 = self._make_layer([256, 512], layers[3])#8
+    # 26,26,512 -&gt; 13,13,1024
+    self.layer5 = self._make_layer([512, 1024], layers[4])#4
+
+    self.layers_out_filters = [64, 128, 256, 512, 1024]
+
+    # 进行权值初始化
+    for m in self.modules():
+        if isinstance(m, nn.Conv2d):#啥意思呢，就是如果m的类型是nn.conv2d就进行权值初始化
+            n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+            m.weight.data.normal_(0, math.sqrt(2. / n))
+        elif isinstance(m, nn.BatchNorm2d):
+            m.weight.data.fill_(1)
+            m.bias.data.zero_()
+
+#---------------------------------------------------------------------#
+#   在每一个layer里面，首先利用一个步长为2的3x3卷积进行下采样
+#   然后进行残差结构的堆叠
+#---------------------------------------------------------------------#
+def _make_layer(self, planes, blocks):
+    layers = []
+    # 下采样，步长为2，卷积核大小为3
+    #print(&quot;瞅瞅细节1_&#123;&#125;&quot;.format(self.inplanes))
+    #print(&quot;瞅瞅细节2_&#123;&#125;&quot;.format(planes[1]))
+    layers.append((&quot;ds_conv&quot;, nn.Conv2d(self.inplanes, planes[1], kernel_size=3, stride=2, padding=1, bias=False)))
+    layers.append((&quot;ds_bn&quot;, nn.BatchNorm2d(planes[1])))
+    layers.append((&quot;ds_relu&quot;, nn.LeakyReLU(0.1)))
+    # 加入残差结构
+    self.inplanes = planes[1]
+    for i in range(0, blocks):
+        layers.append((&quot;residual_&#123;&#125;&quot;.format(i), BasicBlock(self.inplanes, planes)))
+    #print(&quot;残差堆叠&quot;,nn.Sequential(OrderedDict(layers)))
+    return nn.Sequential(OrderedDict(layers))
+
+def forward(self, x):
+    x = self.conv1(x)
+    x = self.bn1(x)
+    x = self.relu1(x)
+    #print(&quot;未经过残差堆叠&quot;,x.size())
+    x = self.layer1(x)
+    #print(&quot;第一次残差堆叠&quot;,x.size())
+    x = self.layer2(x)
+    out3 = self.layer3(x)
+    out4 = self.layer4(out3)
+    out5 = self.layer5(out4)
+    
+    return out3, out4, out5
+
+def darknet53():
+    model = DarkNet([1, 2, 8, 8, 4])
+    return model
+</code></pre>
+<h1 id="特征金字塔"><a href="#特征金字塔" class="headerlink" title="特征金字塔"></a>特征金字塔</h1><pre><code>def conv2d(filter_in, filter_out, kernel_size):
+    pad = (kernel_size - 1) // 2 if kernel_size else 0
+    return nn.Sequential(OrderedDict([
+        (&quot;conv&quot;, nn.Conv2d(filter_in, filter_out, kernel_size=kernel_size, stride=1, padding=pad, bias=False)),
+        (&quot;bn&quot;, nn.BatchNorm2d(filter_out)),
+        (&quot;relu&quot;, nn.LeakyReLU(0.1)),
+    ]))
+
+#------------------------------------------------------------------------#
+#   make_last_layers里面一共有七个卷积，前五个用于提取特征。
+#   后两个用于获得yolo网络的预测结果
+#------------------------------------------------------------------------#
+def make_last_layers(filters_list, in_filters, out_filter):
+    m = nn.Sequential(
+        conv2d(in_filters, filters_list[0], 1),
+        conv2d(filters_list[0], filters_list[1], 3),
+        conv2d(filters_list[1], filters_list[0], 1),
+        conv2d(filters_list[0], filters_list[1], 3),
+        conv2d(filters_list[1], filters_list[0], 1),
+        conv2d(filters_list[0], filters_list[1], 3),
+        nn.Conv2d(filters_list[1], out_filter, kernel_size=1, stride=1, padding=0, bias=True)
+    )
+    return m
+
+class YoloBody(nn.Module):
+    def __init__(self, anchors_mask, num_classes):
+        super(YoloBody, self).__init__()
+        #---------------------------------------------------#   
+        #   生成darknet53的主干模型
+        #   获得三个有效特征层，他们的shape分别是：
+        #   52,52,256
+        #   26,26,512
+        #   13,13,1024
+        #---------------------------------------------------#
+        self.backbone = darknet53()
+
+        #---------------------------------------------------#
+        #   out_filters : [64, 128, 256, 512, 1024]
+        #---------------------------------------------------#
+        out_filters = self.backbone.layers_out_filters
+
+        #------------------------------------------------------------------------#
+        #   计算yolo_head的输出通道数，对于voc数据集而言
+        #   final_out_filter0 = final_out_filter1 = final_out_filter2 = 75
+        #------------------------------------------------------------------------#
+        self.last_layer0            = make_last_layers([512, 1024], out_filters[-1], len(anchors_mask[0]) * (num_classes + 5))
+
+        self.last_layer1_conv       = conv2d(512, 256, 1)
+        self.last_layer1_upsample   = nn.Upsample(scale_factor=2, mode=&#39;nearest&#39;)
+        self.last_layer1            = make_last_layers([256, 512], out_filters[-2] + 256, len(anchors_mask[1]) * (num_classes + 5))
+
+        self.last_layer2_conv       = conv2d(256, 128, 1)
+        self.last_layer2_upsample   = nn.Upsample(scale_factor=2, mode=&#39;nearest&#39;)
+        self.last_layer2            = make_last_layers([128, 256], out_filters[-3] + 128, len(anchors_mask[2]) * (num_classes + 5))
+
+    def forward(self, x):
+        #---------------------------------------------------#   
+        #   获得三个有效特征层，他们的shape分别是：
+        #   52,52,256；26,26,512；13,13,1024
+        #---------------------------------------------------#
+        x2, x1, x0 = self.backbone(x)
+
+        #---------------------------------------------------#
+        #   第一个特征层
+        #   out0 = (batch_size,255,13,13)
+        #---------------------------------------------------#
+        # 13,13,1024 -&gt; 13,13,512 -&gt; 13,13,1024 -&gt; 13,13,512 -&gt; 13,13,1024 -&gt; 13,13,512
+        out0_branch = self.last_layer0[:5](x0)
+        out0        = self.last_layer0[5:](out0_branch)
+
+        # 13,13,512 -&gt; 13,13,256 -&gt; 26,26,256
+        x1_in = self.last_layer1_conv(out0_branch)
+        x1_in = self.last_layer1_upsample(x1_in)
+
+        # 26,26,256 + 26,26,512 -&gt; 26,26,768
+        x1_in = torch.cat([x1_in, x1], 1)
+        #---------------------------------------------------#
+        #   第二个特征层
+        #   out1 = (batch_size,255,26,26)
+        #---------------------------------------------------#
+        # 26,26,768 -&gt; 26,26,256 -&gt; 26,26,512 -&gt; 26,26,256 -&gt; 26,26,512 -&gt; 26,26,256
+        out1_branch = self.last_layer1[:5](x1_in)
+        out1        = self.last_layer1[5:](out1_branch)
+
+        # 26,26,256 -&gt; 26,26,128 -&gt; 52,52,128
+        x2_in = self.last_layer2_conv(out1_branch)
+        x2_in = self.last_layer2_upsample(x2_in)
+
+        # 52,52,128 + 52,52,256 -&gt; 52,52,384
+        x2_in = torch.cat([x2_in, x2], 1)
+        #---------------------------------------------------#
+        #   第一个特征层
+        #   out3 = (batch_size,255,52,52)
+        #---------------------------------------------------#
+        # 52,52,384 -&gt; 52,52,128 -&gt; 52,52,256 -&gt; 52,52,128 -&gt; 52,52,256 -&gt; 52,52,128
+        out2 = self.last_layer2(x2_in)
+        return out0, out1, out2
+</code></pre>
+<p>#解码网络略<br>#实验结果如下图</p>
+<p><img src="https://s2.loli.net/2021/12/06/obAlWgrU5O7eY3S.png"></p>
+<p><img src="https://s2.loli.net/2021/12/06/6r1oBGOx9QW3Ybq.png"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">黄坚强</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://huangyanglai-blog.cn/2021/12/06/%E5%9F%BA%E4%BA%8Eyolov3%E7%9A%84%E5%85%89%E4%BC%8F%E6%9D%BF%E7%83%AD%E6%96%91%E6%A3%80%E6%B5%8B/">http://huangyanglai-blog.cn/2021/12/06/%E5%9F%BA%E4%BA%8Eyolov3%E7%9A%84%E5%85%89%E4%BC%8F%E6%9D%BF%E7%83%AD%E6%96%91%E6%A3%80%E6%B5%8B/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://huangyanglai-blog.cn" target="_blank">有理想的黄坚强</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></div><div class="post_share"><div class="social-share" data-image="/img/277.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2021/11/21/%E5%9F%BA%E4%BA%8Estm32f407%E5%8D%95%E7%89%87%E6%9C%BA%E4%B8%8Eov2640%E6%91%84%E5%83%8F%E5%A4%B4%E4%B8%8Eyolov3%E7%9A%84%E4%B8%8A%E4%BD%8D%E6%9C%BA%E5%88%B6%E4%BD%9C/"><img class="next-cover" src="/img/277.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">基于stm32f407单片机与ov2640摄像头与yolov3的上位机制作</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/huang.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">黄坚强</div><div class="author-info__description">温润如玉，卑以自牧</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Huang-yanglai"><i class="fab fa-github"></i><span>个人主页</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/Huang-yanglai" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="https://gitee.com/huang-yanglai" target="_blank" title="Gitee"><i class="fab fa-git"></i></a><a class="social-icon" href="mailto:1654398978@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">少年在星空下奔跑</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%89%B9%E5%BE%81%E9%87%91%E5%AD%97%E5%A1%94"><span class="toc-number">2.</span> <span class="toc-text">特征金字塔</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/12/06/%E5%9F%BA%E4%BA%8Eyolov3%E7%9A%84%E5%85%89%E4%BC%8F%E6%9D%BF%E7%83%AD%E6%96%91%E6%A3%80%E6%B5%8B/" title="基于yolov3的光伏板热斑检测"><img src="/img/277.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基于yolov3的光伏板热斑检测"/></a><div class="content"><a class="title" href="/2021/12/06/%E5%9F%BA%E4%BA%8Eyolov3%E7%9A%84%E5%85%89%E4%BC%8F%E6%9D%BF%E7%83%AD%E6%96%91%E6%A3%80%E6%B5%8B/" title="基于yolov3的光伏板热斑检测">基于yolov3的光伏板热斑检测</a><time datetime="2021-12-06T12:37:36.000Z" title="发表于 2021-12-06 20:37:36">2021-12-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/11/21/%E5%9F%BA%E4%BA%8Estm32f407%E5%8D%95%E7%89%87%E6%9C%BA%E4%B8%8Eov2640%E6%91%84%E5%83%8F%E5%A4%B4%E4%B8%8Eyolov3%E7%9A%84%E4%B8%8A%E4%BD%8D%E6%9C%BA%E5%88%B6%E4%BD%9C/" title="基于stm32f407单片机与ov2640摄像头与yolov3的上位机制作"><img src="/img/277.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基于stm32f407单片机与ov2640摄像头与yolov3的上位机制作"/></a><div class="content"><a class="title" href="/2021/11/21/%E5%9F%BA%E4%BA%8Estm32f407%E5%8D%95%E7%89%87%E6%9C%BA%E4%B8%8Eov2640%E6%91%84%E5%83%8F%E5%A4%B4%E4%B8%8Eyolov3%E7%9A%84%E4%B8%8A%E4%BD%8D%E6%9C%BA%E5%88%B6%E4%BD%9C/" title="基于stm32f407单片机与ov2640摄像头与yolov3的上位机制作">基于stm32f407单片机与ov2640摄像头与yolov3的上位机制作</a><time datetime="2021-11-21T12:15:58.000Z" title="发表于 2021-11-21 20:15:58">2021-11-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/01/%E8%87%AA%E6%88%91%E4%BB%8B%E7%BB%8D/" title="自我介绍"><img src="/img/277.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="自我介绍"/></a><div class="content"><a class="title" href="/2021/10/01/%E8%87%AA%E6%88%91%E4%BB%8B%E7%BB%8D/" title="自我介绍">自我介绍</a><time datetime="2021-10-01T05:55:44.000Z" title="发表于 2021-10-01 13:55:44">2021-10-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/09/05/hello-world/" title="Hello World"><img src="/img/277.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hello World"/></a><div class="content"><a class="title" href="/2021/09/05/hello-world/" title="Hello World">Hello World</a><time datetime="2021-09-05T14:04:29.546Z" title="发表于 2021-09-05 22:04:29">2021-09-05</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By 黄坚强</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
