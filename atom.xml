@@ -6,7 +6,7 @@
   <link href="http://huangyanglai-blog.cn/atom.xml" rel="self"/>
   
   <link href="http://huangyanglai-blog.cn/"/>
-  <updated>2021-12-06T13:29:32.011Z</updated>
+  <updated>2021-12-19T13:43:38.806Z</updated>
   <id>http://huangyanglai-blog.cn/</id>
   
   <author>
@@ -15,6 +15,31 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>基于FPN-VGG-SENet-BLSTM的噪点验证码识别</title>
+    <link href="http://huangyanglai-blog.cn/2021/12/19/%E5%9F%BA%E4%BA%8EFPN-VGG-SENet-BLSTM%E7%9A%84%E5%99%AA%E7%82%B9%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/"/>
+    <id>http://huangyanglai-blog.cn/2021/12/19/%E5%9F%BA%E4%BA%8EFPN-VGG-SENet-BLSTM%E7%9A%84%E5%99%AA%E7%82%B9%E9%AA%8C%E8%AF%81%E7%A0%81%E8%AF%86%E5%88%AB/</id>
+    <published>2021-12-19T13:18:18.000Z</published>
+    <updated>2021-12-19T13:43:38.806Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote><p>需要具备知识：</p><p>1，python基础<br>2，opencv基础<br>3，FPN基础（论文：feature pyramid networks for object detection）<br>4，SENet基础（论文：Squeeze-and-Excitation Networks）<br>5，连接时序分类基础（论文：基于深度学习的视频手语识别研究）</p></blockquote><h1 id="主干网络"><a href="#主干网络" class="headerlink" title="主干网络"></a>主干网络</h1><pre><code>class SELayer(nn.Module):    def __init__(self, channel, reduction=16):        super(SELayer, self).__init__()        self.avg_pool = nn.AdaptiveAvgPool2d(1)        self.fc = nn.Sequential(            nn.Linear(channel, channel // reduction, bias=False),            nn.ReLU(inplace=True),            nn.Linear(channel // reduction, channel, bias=False),            nn.Sigmoid()        )    def forward(self, x):        b, c, _, _ = x.size()        y = self.avg_pool(x).view(b, c)        y = self.fc(y).view(b, c, 1, 1)        return x * y.expand_as(x)class VGG(nn.Module):    def __init__(self):        super(VGG, self).__init__()        self.features = make_layers(cfgs[&#39;D&#39;，&#39;M&#39;,&#39;H&#39;])    def forward(self, x):        x = self.features(x)        return xclass BidirectionalLSTM(nn.Module):    def __init__(self, inp, nHidden, oup):        super(BidirectionalLSTM, self).__init__()        self.rnn = nn.LSTM(inp, nHidden, bidirectional=True)        self.embedding = nn.Linear(nHidden * 2, oup)    def forward(self, x):        out, _ = self.rnn(x)        T, b, h = out.size()        t_rec = out.view(T * b, h)        output = self.embedding(t_rec)        output = output.view(T, b, -1)        return output</code></pre><h1 id="解码网络"><a href="#解码网络" class="headerlink" title="解码网络"></a>解码网络</h1><pre><code># -*- coding: utf-8 -*-&quot;&quot;&quot;Created on Wed Dec  8 13:26:42 2021@author: HUANGYANGLAI&quot;&quot;&quot;import osimport argparseimport torchimport cv2from torchvision.transforms import transformsimport timefrom vision.network import CRNNfrom util.tools import process_img, decode_outfrom matplotlib import pyplot as plt parser = argparse.ArgumentParser(description=&#39;Test&#39;)parser.add_argument(&#39;-m&#39;, &#39;--trained_model&#39;, default=&#39;./weights/Final1.pth&#39;,                    type=str, help=&#39;Trained state_dict file path to open&#39;)#parser.add_argument(&#39;--save_file&#39;, default=&#39;result.txt&#39;, type=str, help=&#39;file to save results&#39;)parser.add_argument(&#39;--width&#39;, default=200, type=int, help=&quot;input image width&quot;)parser.add_argument(&#39;--height&#39;, default=32, type=int, help=&quot;input image height&quot;)parser.add_argument(&#39;--cpu&#39;, default=True, help=&#39;Use cpu inference&#39;)parser.add_argument(&#39;--characters&#39;, default=&quot;-0123456789&quot;, type=str, help=&quot;characters&quot;)parser.add_argument(&#39;--input_path&#39;, default=&#39;J://CRNN_pytorch-master//test//&#39;, type=str, help=&quot;image or images dir&quot;)args = parser.parse_args()if __name__ == &#39;__main__&#39;:    torch.set_grad_enabled(False)#即后面的使用均是不可求倒的                net = CRNN(len(args.characters))    device = torch.device(&quot;cpu&quot; if args.cpu else &quot;cuda&quot;)    net.load_state_dict(torch.load(args.trained_model, map_location=torch.device(device)))    net.eval()    input_path = args.input_path    image_paths = []    if os.path.isdir(input_path):        for inp_file in os.listdir(input_path):                        image_paths += [input_path + inp_file]                else:        image_paths += [input_path]    image_paths = [inp_file for inp_file in image_paths if (inp_file[-4:] in [&#39;.jpg&#39;, &#39;.png&#39;, &#39;JPEG&#39;])]    for img_path in image_paths:        print(&quot;image_path&quot;,img_path)        begin = time.time()        print(&quot;recog &#123;&#125;&quot;.format(img_path))        image = cv2.imread(img_path)                        transform = transforms.Compose([transforms.ToTensor(),                                        transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))])        img = process_img(image, args.height, args.width, transform)        #print(&quot;网络输入&quot;,img.size())                net_out = net(img)        #print(&quot;网络输出&quot;,net_out.size())        _, preds = net_out.max(2)        print(&quot;未改变前preds&quot;,len(preds))        preds = preds.transpose(1, 0).contiguous().view(-1)        print(&quot;改变后preds&quot;,preds)        lab2str = decode_out(preds, args.characters)        print(&quot;输出&quot;,lab2str)        if(lab2str==&#39;441&#39;):            print(&#39;okk&#39;)        end = time.time()        #print(&quot;endtime &quot;,end)    #print(&quot;Done!!!&quot;)</code></pre><p><img src="https://s2.loli.net/2021/12/19/iDHPRkVeJp6MmLX.png"></p><p><img src="https://s2.loli.net/2021/12/19/7tpURrlPYuJId2m.jpg"></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h1&gt;&lt;blockquote&gt;&lt;p&gt;需要具备知识：&lt;/p&gt;
+&lt;p&gt;1，python基础&lt;br&gt;2，opencv基础&lt;br&gt;3，FPN基础（论文：feat</summary>
+      
+    
+    
+    
+    <category term="图像检测" scheme="http://huangyanglai-blog.cn/categories/%E5%9B%BE%E5%83%8F%E6%A3%80%E6%B5%8B/"/>
+    
+    
+    <category term="深度学习" scheme="http://huangyanglai-blog.cn/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"/>
+    
+  </entry>
   
   <entry>
     <title>基于yolov3的光伏板热斑检测</title>
